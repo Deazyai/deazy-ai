@@ -1,6 +1,5 @@
 
-   
-   import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Bot, User, Send, Sparkles, Terminal, Cpu, Zap, RefreshCw } from 'lucide-react';
 
 // 1. Setup the direct bridge link pointing to your Netlify variable / Ngrok tunnel
@@ -189,4 +188,4 @@ export default function App() {
       </footer>
     </div>
   );
-} 
+}
