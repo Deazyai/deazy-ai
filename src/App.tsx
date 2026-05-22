@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bot, User, Send, Sparkles, Terminal, Cpu, Zap, RefreshCw, Volume2 } from 'lucide-react';
+import { Bot, User, Send, Sparkles, Terminal, Cpu, Zap, RefreshCw, Volume2, Timer } from 'lucide-react';
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/$/, "");
 
@@ -33,13 +33,25 @@ export default function App() {
   const [isScriptLoading, setIsScriptLoading] = useState(false);
   const [isAudioLoading, setIsAudioLoading] = useState(false);
 
+  // Global Quota Cooldown Timer
+  const [cooldownSeconds, setCooldownSeconds] = useState<number>(0);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Handle countdown tracking
+  useEffect(() => {
+    if (cooldownSeconds <= 0) return;
+    const interval = setInterval(() => {
+      setCooldownSeconds(prev => prev - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [cooldownSeconds]);
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading || cooldownSeconds > 0) return;
 
     const userText = input.trim();
     setInput('');
@@ -62,6 +74,12 @@ export default function App() {
       });
 
       const data = await response.json();
+      
+      if (response.status === 429) {
+        setCooldownSeconds(data.retry_after || 35);
+        throw new Error(`Engine Quota Reached. Please wait ${data.retry_after || 35}s.`);
+      }
+
       if (!response.ok) throw new Error(data.error || "Error");
       
       const aiMessage: Message = {
@@ -74,7 +92,7 @@ export default function App() {
     } catch (error: any) {
       const errorMessage: Message = {
         id: crypto.randomUUID(),
-        text: `Error connecting to engine: ${error.message || error}`,
+        text: `⚠️ ${error.message || error}`,
         sender: 'ai',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
@@ -85,7 +103,7 @@ export default function App() {
   };
 
   const handleForgeBlueprint = async () => {
-    if (!nicheInput.trim() || isAutomationLoading) return;
+    if (!nicheInput.trim() || isAutomationLoading || cooldownSeconds > 0) return;
     setIsAutomationLoading(true);
     setBlueprintResult('');
     setAudioUrl(null);
@@ -98,6 +116,13 @@ export default function App() {
       });
 
       const data = await response.json();
+      
+      if (response.status === 429) {
+        setCooldownSeconds(data.retry_after || 35);
+        setBlueprintResult(`🛑 Google Free Quota limit reached. Engine auto-unlocking in ${data.retry_after || 35} seconds...`);
+        return;
+      }
+
       if (!response.ok) throw new Error(data.error || "Overload");
       setBlueprintResult(data.blueprint);
     } catch (error: any) {
@@ -108,7 +133,7 @@ export default function App() {
   };
 
   const handleGenerateScript = async () => {
-    if (!nicheInput.trim() || isScriptLoading) return;
+    if (!nicheInput.trim() || isScriptLoading || cooldownSeconds > 0) return;
     setIsScriptLoading(true);
     setScriptResult('');
     setAudioUrl(null);
@@ -121,6 +146,13 @@ export default function App() {
       });
 
       const data = await response.json();
+      
+      if (response.status === 429) {
+        setCooldownSeconds(data.retry_after || 35);
+        setScriptResult(`🛑 Google Free Quota limit reached. Engine auto-unlocking in ${data.retry_after || 35} seconds...`);
+        return;
+      }
+
       if (!response.ok) throw new Error(data.error || "Overload");
       setScriptResult(data.script);
     } catch (error: any) {
@@ -156,7 +188,7 @@ export default function App() {
 
   return (
     <div className="fixed inset-0 bg-zinc-950 text-zinc-100 flex flex-col font-sans overflow-hidden select-none">
-      {/* Premium Header Layout */}
+      {/* Header Layout */}
       <header className="border-b border-zinc-900/80 bg-zinc-900/40 backdrop-blur-md px-4 py-3 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-md">
@@ -165,7 +197,8 @@ export default function App() {
           <div>
             <h1 className="text-sm font-bold tracking-wider text-zinc-100 font-mono">DEAZY AI</h1>
             <p className="text-[10px] text-zinc-500 font-mono flex items-center gap-1">
-              <span className="h-1 w-1 rounded-full bg-emerald-500 animate-ping" /> CORE ONLINE
+              <span className={`h-1 w-1 rounded-full ${cooldownSeconds > 0 ? 'bg-amber-500' : 'bg-emerald-500 animate-ping'}`} /> 
+              {cooldownSeconds > 0 ? `QUOTA COOLDOWN (${cooldownSeconds}s)` : 'CORE ONLINE'}
             </p>
           </div>
         </div>
@@ -186,11 +219,10 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main Viewport Content Box */}
+      {/* Main Viewport */}
       <main className="flex-1 max-w-2xl w-full mx-auto relative flex flex-col overflow-hidden">
         {activeTab === 'chat' ? (
           <div className="flex-1 flex flex-col h-full overflow-hidden">
-            {/* Scrollable Chat History Wrapper */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex gap-3 max-w-[88%] ${msg.sender === 'user' ? 'ml-auto flex-row-reverse' : ''}`}>
@@ -216,46 +248,68 @@ export default function App() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Anchored Input Form Element at bottom layout boundary */}
             <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-zinc-950 via-zinc-950 to-transparent p-4 pt-10 border-t border-zinc-900/20">
               <form onSubmit={handleSendMessage} className="bg-zinc-900/90 border border-zinc-800/80 rounded-xl p-1.5 flex gap-2 items-center backdrop-blur-md shadow-lg">
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="What are we building today?"
+                  placeholder={cooldownSeconds > 0 ? `Engine locked for ${cooldownSeconds}s...` : "What are we building today?"}
                   className="flex-1 bg-transparent px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none"
-                  disabled={isLoading}
+                  disabled={isLoading || cooldownSeconds > 0}
                 />
-                <button type="submit" disabled={!input.trim() || isLoading} className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-30 text-white p-2.5 rounded-lg flex items-center justify-center transition-all shrink-0">
-                  <Send className="h-3.5 w-3.5" />
+                <button type="submit" disabled={!input.trim() || isLoading || cooldownSeconds > 0} className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-30 text-white p-2.5 rounded-lg flex items-center justify-center transition-all shrink-0">
+                  {cooldownSeconds > 0 ? <Timer className="h-3.5 w-3.5 text-amber-400 animate-pulse" /> : <Send className="h-3.5 w-3.5" />}
                 </button>
               </form>
             </div>
           </div>
         ) : (
-          /* Scrollable Automation Interface Container */
           <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-8">
             <div className="bg-zinc-900/40 border border-zinc-800/60 p-4 rounded-xl space-y-3 shadow-md">
-              <div className="flex items-center gap-1.5 text-indigo-400">
-                <Zap className="h-3.5 w-3.5 animate-pulse" />
-                <h3 className="text-[10px] font-mono uppercase tracking-wider font-bold">Automation Command Console</h3>
+              <div className="flex items-center justify-between text-indigo-400">
+                <div className="flex items-center gap-1.5">
+                  <Zap className="h-3.5 w-3.5" />
+                  <h3 className="text-[10px] font-mono uppercase tracking-wider font-bold">Automation Command Console</h3>
+                </div>
+                {cooldownSeconds > 0 && (
+                  <span className="text-[9px] font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 animate-pulse flex items-center gap-1">
+                    <Timer className="h-2.5 w-2.5" /> HOLD: {cooldownSeconds}s
+                  </span>
+                )}
               </div>
+              
               <input
                 type="text"
                 value={nicheInput}
                 onChange={(e) => setNicheInput(e.target.value)}
                 placeholder="Enter channel niche context or concept idea..."
                 className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500/60 transition-all"
+                disabled={cooldownSeconds > 0}
               />
+              
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <button onClick={handleForgeBlueprint} disabled={isAutomationLoading || !nicheInput.trim()} className="bg-zinc-900 border border-zinc-700 text-zinc-300 py-2.5 rounded-lg text-[10px] font-mono flex items-center justify-center gap-1.5 disabled:opacity-40">
-                  <Cpu className={`h-3 w-3 ${isAutomationLoading ? 'animate-spin' : ''}`} /> 1. BLUEPRINT
+                <button 
+                  onClick={handleForgeBlueprint} 
+                  disabled={isAutomationLoading || !nicheInput.trim() || cooldownSeconds > 0} 
+                  className={`bg-zinc-900 border text-zinc-300 py-2.5 rounded-lg text-[10px] font-mono flex items-center justify-center gap-1.5 disabled:opacity-40 ${cooldownSeconds > 0 ? 'border-amber-500/20 text-amber-500/60' : 'border-zinc-700'}`}
+                >
+                  <Cpu className={`h-3 w-3 ${isAutomationLoading ? 'animate-spin' : ''}`} /> 
+                  {cooldownSeconds > 0 ? `LOCKED (${cooldownSeconds}s)` : '1. BLUEPRINT'}
                 </button>
-                <button onClick={handleGenerateScript} disabled={isScriptLoading || !nicheInput.trim()} className="bg-zinc-900 border border-zinc-700 text-zinc-300 py-2.5 rounded-lg text-[10px] font-mono flex items-center justify-center gap-1.5 disabled:opacity-40">
-                  <Terminal className={`h-3 w-3 ${isScriptLoading ? 'animate-pulse' : ''}`} /> 2. SCRIPT
+                <button 
+                  onClick={handleGenerateScript} 
+                  disabled={isScriptLoading || !nicheInput.trim() || cooldownSeconds > 0} 
+                  className={`bg-zinc-900 border text-zinc-300 py-2.5 rounded-lg text-[10px] font-mono flex items-center justify-center gap-1.5 disabled:opacity-40 ${cooldownSeconds > 0 ? 'border-amber-500/20 text-amber-500/60' : 'border-zinc-700'}`}
+                >
+                  <Terminal className={`h-3 w-3 ${isScriptLoading ? 'animate-pulse' : ''}`} /> 
+                  {cooldownSeconds > 0 ? `LOCKED (${cooldownSeconds}s)` : '2. SCRIPT'}
                 </button>
-                <button onClick={handleCompileAudio} disabled={isAudioLoading || !scriptResult} className="bg-indigo-600 text-white py-2.5 rounded-lg text-[10px] font-mono flex items-center justify-center gap-1.5 disabled:opacity-40 shadow-sm shadow-indigo-600/20">
+                <button 
+                  onClick={handleCompileAudio} 
+                  disabled={isAudioLoading || !scriptResult || cooldownSeconds > 0} 
+                  className="bg-indigo-600 text-white py-2.5 rounded-lg text-[10px] font-mono flex items-center justify-center gap-1.5 disabled:opacity-40 shadow-sm"
+                >
                   <Volume2 className={`h-3 w-3 ${isAudioLoading ? 'animate-bounce' : ''}`} /> 3. AUDIO VOICE
                 </button>
               </div>
