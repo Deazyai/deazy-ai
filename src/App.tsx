@@ -155,162 +155,130 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans selection:bg-indigo-500/30">
-      {/* Premium Navigation Header Navbar */}
-      <header className="border-b border-zinc-800/80 bg-zinc-900/40 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/10">
-            <Sparkles className="h-5 w-5 text-white animate-pulse" />
+    <div className="fixed inset-0 bg-zinc-950 text-zinc-100 flex flex-col font-sans overflow-hidden select-none">
+      {/* Premium Header Layout */}
+      <header className="border-b border-zinc-900/80 bg-zinc-900/40 backdrop-blur-md px-4 py-3 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-md">
+            <Sparkles className="h-4 w-4 text-white animate-pulse" />
           </div>
           <div>
-            <h1 className="text-md font-bold tracking-wide bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
-              DEAZY AI DASHBOARD
-            </h1>
-            <p className="text-xs text-zinc-500 font-mono flex items-center gap-1.5 mt-0.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
-              SYSTEM OPERATIONAL
+            <h1 className="text-sm font-bold tracking-wider text-zinc-100 font-mono">DEAZY AI</h1>
+            <p className="text-[10px] text-zinc-500 font-mono flex items-center gap-1">
+              <span className="h-1 w-1 rounded-full bg-emerald-500 animate-ping" /> CORE ONLINE
             </p>
           </div>
         </div>
 
-        <div className="flex bg-zinc-950 p-1 rounded-xl border border-zinc-800/60">
+        <div className="flex bg-zinc-900 p-0.5 rounded-lg border border-zinc-800">
           <button 
             onClick={() => setActiveTab('chat')}
-            className={`px-4 py-2 rounded-lg text-xs font-medium tracking-wide transition-all flex items-center gap-2 ${activeTab === 'chat' ? 'bg-zinc-800 text-white shadow-md' : 'text-zinc-400 hover:text-zinc-200'}`}
+            className={`px-3 py-1.5 rounded-md text-[11px] font-medium tracking-wide transition-all flex items-center gap-1.5 ${activeTab === 'chat' ? 'bg-zinc-800 text-white shadow' : 'text-zinc-400'}`}
           >
-            <Terminal className="h-3.5 w-3.5" /> CORE CHAT
+            <Terminal className="h-3 w-3" /> CHAT
           </button>
           <button 
             onClick={() => setActiveTab('automation')}
-            className={`px-4 py-2 rounded-lg text-xs font-medium tracking-wide transition-all flex items-center gap-2 ${activeTab === 'automation' ? 'bg-zinc-800 text-white shadow-md' : 'text-zinc-400 hover:text-zinc-200'}`}
+            className={`px-3 py-1.5 rounded-md text-[11px] font-medium tracking-wide transition-all flex items-center gap-1.5 ${activeTab === 'automation' ? 'bg-zinc-800 text-white shadow' : 'text-zinc-400'}`}
           >
-            <Cpu className="h-3.5 w-3.5" /> AUTOMATION MODE
+            <Cpu className="h-3 w-3" /> AUTOMATION
           </button>
         </div>
       </header>
 
-      {/* Main Container Core */}
-      <main className="flex-1 flex flex-col max-w-4xl w-full mx-auto p-4 md:p-6 overflow-hidden">
+      {/* Main Viewport Content Box */}
+      <main className="flex-1 max-w-2xl w-full mx-auto relative flex flex-col overflow-hidden">
         {activeTab === 'chat' ? (
-          <div className="flex-1 flex flex-col bg-zinc-900/30 border border-zinc-800/50 rounded-2xl overflow-hidden backdrop-blur-sm shadow-xl">
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[450px] max-h-[60vh]">
+          <div className="flex-1 flex flex-col h-full overflow-hidden">
+            {/* Scrollable Chat History Wrapper */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
               {messages.map((msg) => (
-                <div key={msg.id} className={`flex gap-3 max-w-[85%] ${msg.sender === 'user' ? 'ml-auto flex-row-reverse' : ''}`}>
-                  <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 border ${msg.sender === 'user' ? 'bg-zinc-800 border-zinc-700 text-zinc-200' : 'bg-indigo-950/50 border-indigo-500/30 text-indigo-400'}`}>
-                    {msg.sender === 'user' ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
+                <div key={msg.id} className={`flex gap-3 max-w-[88%] ${msg.sender === 'user' ? 'ml-auto flex-row-reverse' : ''}`}>
+                  <div className={`h-7 w-7 rounded-md flex items-center justify-center shrink-0 border ${msg.sender === 'user' ? 'bg-zinc-800 border-zinc-700 text-zinc-300' : 'bg-indigo-950/50 border-indigo-500/20 text-indigo-400'}`}>
+                    {msg.sender === 'user' ? <User className="h-3.5 w-3.5" /> : <Bot className="h-3.5 w-3.5" />}
                   </div>
                   <div>
-                    <div className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${msg.sender === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-zinc-900 border border-zinc-800 text-zinc-100 rounded-tl-none'}`}>
+                    <div className={`rounded-xl px-3.5 py-2 text-sm leading-relaxed whitespace-pre-wrap ${msg.sender === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-zinc-900 border border-zinc-800/80 text-zinc-200'}`}>
                       {msg.text}
                     </div>
-                    <p className={`text-[10px] text-zinc-500 font-mono mt-1 ${msg.sender === 'user' ? 'text-right' : ''}`}>{msg.timestamp}</p>
+                    <p className={`text-[9px] text-zinc-600 font-mono mt-0.5 ${msg.sender === 'user' ? 'text-right' : ''}`}>{msg.timestamp}</p>
                   </div>
                 </div>
               ))}
               {isLoading && (
                 <div className="flex gap-3 max-w-[85%]">
-                  <div className="h-8 w-8 rounded-lg flex items-center justify-center bg-indigo-950/50 border border-indigo-500/30 text-indigo-400"><Bot className="h-4 w-4" /></div>
-                  <div className="bg-zinc-900 border border-zinc-800 text-zinc-400 rounded-2xl rounded-tl-none px-4 py-2.5 text-sm flex items-center gap-2 shadow-sm font-mono text-xs">
-                    <RefreshCw className="h-3.5 w-3.5 animate-spin text-indigo-400" /> Processing execution request...
+                  <div className="h-7 w-7 rounded-md flex items-center justify-center bg-indigo-950/50 border border-indigo-500/20 text-indigo-400"><Bot className="h-3.5 w-3.5" /></div>
+                  <div className="bg-zinc-900 border border-zinc-800/80 text-zinc-400 rounded-xl px-3.5 py-2 text-xs font-mono flex items-center gap-1.5">
+                    <RefreshCw className="h-3 w-3 animate-spin text-indigo-400" /> Computing sequence...
                   </div>
                 </div>
               )}
               <div ref={messagesEndRef} />
             </div>
 
-            <form onSubmit={handleSendMessage} className="p-4 border-t border-zinc-800/80 bg-zinc-900/20 backdrop-blur-md flex gap-2">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="What are we building today?"
-                className="flex-1 bg-zinc-950 border border-zinc-800/80 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-indigo-500/80 transition-all"
-                disabled={isLoading}
-              />
-              <button type="submit" disabled={!input.trim() || isLoading} className="bg-indigo-600 text-white p-3 rounded-xl flex items-center justify-center shrink-0">
-                <Send className="h-4 w-4" />
-              </button>
-            </form>
-          </div>
-        ) : (
-          /* Restored Multi-Module Automation System Interface */
-          <div className="space-y-6 overflow-y-auto max-h-[80vh] pr-1">
-            <div className="bg-zinc-900/30 border border-zinc-800/50 p-5 rounded-2xl backdrop-blur-sm shadow-xl space-y-4">
-              <div className="flex items-center gap-2 text-indigo-400">
-                <Zap className="h-4 w-4" />
-                <h3 className="text-xs font-mono uppercase tracking-wider">Automation Control Panel</h3>
-              </div>
-              <p className="text-xs text-zinc-400 leading-relaxed">Input your video concept niche or topic. The engine will seamlessly generate tactical assets and audio renderings.</p>
-              
-              <div className="space-y-3">
-                <label className="block text-[10px] font-mono text-zinc-400 uppercase tracking-widest">Channel Niche / Topic Idea</label>
+            {/* Anchored Input Form Element at bottom layout boundary */}
+            <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-zinc-950 via-zinc-950 to-transparent p-4 pt-10 border-t border-zinc-900/20">
+              <form onSubmit={handleSendMessage} className="bg-zinc-900/90 border border-zinc-800/80 rounded-xl p-1.5 flex gap-2 items-center backdrop-blur-md shadow-lg">
                 <input
                   type="text"
-                  value={nicheInput}
-                  onChange={(e) => setNicheInput(e.target.value)}
-                  placeholder="e.g., Luxury Car Reviews, Military Intelligence..."
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-indigo-500 transition-all"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="What are we building today?"
+                  className="flex-1 bg-transparent px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none"
+                  disabled={isLoading}
                 />
+                <button type="submit" disabled={!input.trim() || isLoading} className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-30 text-white p-2.5 rounded-lg flex items-center justify-center transition-all shrink-0">
+                  <Send className="h-3.5 w-3.5" />
+                </button>
+              </form>
+            </div>
+          </div>
+        ) : (
+          /* Scrollable Automation Interface Container */
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-8">
+            <div className="bg-zinc-900/40 border border-zinc-800/60 p-4 rounded-xl space-y-3 shadow-md">
+              <div className="flex items-center gap-1.5 text-indigo-400">
+                <Zap className="h-3.5 w-3.5 animate-pulse" />
+                <h3 className="text-[10px] font-mono uppercase tracking-wider font-bold">Automation Command Console</h3>
               </div>
-
-              {/* Three distinct action points */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                <button
-                  onClick={handleForgeBlueprint}
-                  disabled={isAutomationLoading || !nicheInput.trim()}
-                  className="bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-zinc-200 py-3 px-4 rounded-xl font-medium text-xs tracking-wide transition-all flex items-center justify-center gap-2 disabled:opacity-40 shadow-sm"
-                >
-                  <Cpu className={`h-4 w-4 text-indigo-400 ${isAutomationLoading ? 'animate-spin' : ''}`} />
-                  1. FORGE BLUEPRINT
+              <input
+                type="text"
+                value={nicheInput}
+                onChange={(e) => setNicheInput(e.target.value)}
+                placeholder="Enter channel niche context or concept idea..."
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500/60 transition-all"
+              />
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <button onClick={handleForgeBlueprint} disabled={isAutomationLoading || !nicheInput.trim()} className="bg-zinc-900 border border-zinc-700 text-zinc-300 py-2.5 rounded-lg text-[10px] font-mono flex items-center justify-center gap-1.5 disabled:opacity-40">
+                  <Cpu className={`h-3 w-3 ${isAutomationLoading ? 'animate-spin' : ''}`} /> 1. BLUEPRINT
                 </button>
-                <button
-                  onClick={handleGenerateScript}
-                  disabled={isScriptLoading || !nicheInput.trim()}
-                  className="bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-zinc-200 py-3 px-4 rounded-xl font-medium text-xs tracking-wide transition-all flex items-center justify-center gap-2 disabled:opacity-40 shadow-sm"
-                >
-                  <Terminal className={`h-4 w-4 text-indigo-400 ${isScriptLoading ? 'animate-pulse' : ''}`} />
-                  2. BUILD SCRIPT
+                <button onClick={handleGenerateScript} disabled={isScriptLoading || !nicheInput.trim()} className="bg-zinc-900 border border-zinc-700 text-zinc-300 py-2.5 rounded-lg text-[10px] font-mono flex items-center justify-center gap-1.5 disabled:opacity-40">
+                  <Terminal className={`h-3 w-3 ${isScriptLoading ? 'animate-pulse' : ''}`} /> 2. SCRIPT
                 </button>
-                <button
-                  onClick={handleCompileAudio}
-                  disabled={isAudioLoading || !scriptResult}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white py-3 px-4 rounded-xl font-medium text-xs tracking-wide transition-all flex items-center justify-center gap-2 disabled:opacity-30 shadow-md shadow-indigo-600/10"
-                >
-                  <Volume2 className={`h-4 w-4 ${isAudioLoading ? 'animate-bounce' : ''}`} />
-                  3. GENERATE AUDIO
+                <button onClick={handleCompileAudio} disabled={isAudioLoading || !scriptResult} className="bg-indigo-600 text-white py-2.5 rounded-lg text-[10px] font-mono flex items-center justify-center gap-1.5 disabled:opacity-40 shadow-sm shadow-indigo-600/20">
+                  <Volume2 className={`h-3 w-3 ${isAudioLoading ? 'animate-bounce' : ''}`} /> 3. AUDIO VOICE
                 </button>
               </div>
             </div>
 
-            {/* Dynamic Rendered Audio Frame Block Box */}
             {audioUrl && (
-              <div className="bg-gradient-to-r from-indigo-950/40 to-zinc-900 border border-indigo-500/30 p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl animate-fade-in">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-indigo-500/20 text-indigo-400 rounded-xl"><Volume2 className="h-5 w-5 animate-pulse" /></div>
-                  <div>
-                    <h4 className="text-xs font-bold font-mono tracking-wider uppercase text-zinc-200">Voiceover Render Complete</h4>
-                    <p className="text-[11px] text-zinc-500 font-mono mt-0.5">Asset deployment package ready for download</p>
-                  </div>
-                </div>
-                <audio src={audioUrl} controls className="w-full sm:w-auto accent-indigo-500 bg-transparent rounded-lg" />
+              <div className="bg-gradient-to-r from-indigo-950/30 to-zinc-900 border border-indigo-500/20 p-4 rounded-xl flex flex-col gap-2 shadow-md">
+                <span className="text-[9px] font-mono text-indigo-400 font-bold uppercase tracking-wider">Voiceover Engine Stream Available</span>
+                <audio src={audioUrl} controls className="w-full accent-indigo-500" />
               </div>
             )}
 
             {blueprintResult && (
-              <div className="bg-zinc-900/40 border border-zinc-800/60 rounded-2xl p-5 shadow-lg space-y-3">
-                <h4 className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest">Asset Framework Package Blueprint</h4>
-                <div className="bg-zinc-950/80 border border-zinc-900 rounded-xl p-4 text-sm leading-relaxed text-zinc-300 font-sans whitespace-pre-wrap">
-                  {blueprintResult}
-                </div>
+              <div className="bg-zinc-900/20 border border-zinc-800/50 rounded-xl p-4 space-y-1.5">
+                <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest block">System Deployment Blueprint</span>
+                <div className="bg-zinc-950/40 rounded-lg p-3 text-xs leading-relaxed text-zinc-300 font-sans whitespace-pre-wrap border border-zinc-900">{blueprintResult}</div>
               </div>
             )}
 
             {scriptResult && (
-              <div className="bg-zinc-900/40 border border-zinc-800/60 rounded-2xl p-5 shadow-lg space-y-3">
-                <h4 className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest">Cinematic Narration Script</h4>
-                <div className="bg-zinc-950/80 border border-zinc-900 rounded-xl p-4 text-sm leading-relaxed text-zinc-300 font-sans whitespace-pre-wrap">
-                  {scriptResult}
-                </div>
+              <div className="bg-zinc-900/20 border border-zinc-800/50 rounded-xl p-4 space-y-1.5">
+                <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest block">Narrator Script Deployment Block</span>
+                <div className="bg-zinc-950/40 rounded-lg p-3 text-xs leading-relaxed text-zinc-300 font-sans whitespace-pre-wrap border border-zinc-900">{scriptResult}</div>
               </div>
             )}
           </div>
